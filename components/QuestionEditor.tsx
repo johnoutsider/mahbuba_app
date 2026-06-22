@@ -189,14 +189,31 @@ export function QuestionEditor({
             placeholder="Gap"
             className="w-full border rounded-lg px-3 py-2"
           />
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={trueFalseCorrect}
-              onChange={(e) => setTrueFalseCorrect(e.target.checked)}
-            />
-            Bu gap to&apos;g&apos;ri
-          </label>
+          <p className="text-sm font-medium">To&apos;g&apos;ri javobni belgilang</p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setTrueFalseCorrect(true)}
+              className={`flex-1 rounded-lg border px-4 py-2 font-medium ${
+                trueFalseCorrect
+                  ? "bg-green-600 text-white border-green-600"
+                  : "border-gray-300 text-gray-700"
+              }`}
+            >
+              To&apos;g&apos;ri
+            </button>
+            <button
+              type="button"
+              onClick={() => setTrueFalseCorrect(false)}
+              className={`flex-1 rounded-lg border px-4 py-2 font-medium ${
+                !trueFalseCorrect
+                  ? "bg-red-600 text-white border-red-600"
+                  : "border-gray-300 text-gray-700"
+              }`}
+            >
+              Noto&apos;g&apos;ri
+            </button>
+          </div>
         </div>
       )}
 
