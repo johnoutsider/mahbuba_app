@@ -15,7 +15,7 @@ export function QuestionEditor({
   onCancel,
 }: {
   initial?: Question;
-  onSave: (data: QuestionData) => void;
+  onSave: (data: QuestionData) => void | Promise<void>;
   onCancel: () => void;
 }) {
   const [type, setType] = useState<QuestionType>(initial?.type ?? "multiple_choice");
@@ -48,15 +48,15 @@ export function QuestionEditor({
     ]
   );
 
-  function handleSave() {
+  function buildData(): QuestionData | null {
     if (type === "multiple_choice") {
-      if (!prompt.trim()) return setError("Savol matnini kiriting");
-      if (options.some((t) => !t.trim())) return setError("Barcha variantlarni to'ldiring");
+      if (!prompt.trim()) return setError("Savol matnini kiriting"), null;
+      if (options.some((t) => !t.trim())) return setError("Barcha variantlarni to'ldiring"), null;
       const opts: AnswerOption[] = options.map((text, i) => ({
         id: String.fromCharCode(97 + i),
         text: text.trim(),
       }));
-      onSave({
+      return {
         type,
         promptLang: lang,
         order: 0,
@@ -64,32 +64,43 @@ export function QuestionEditor({
         promptTransliteration: promptTransliteration.trim() || undefined,
         options: opts,
         correctOptionId: opts[correctIndex]?.id,
-      });
+      };
     } else if (type === "true_false") {
-      if (!statement.trim()) return setError("Gapni kiriting");
-      onSave({
+      if (!statement.trim()) return setError("Gapni kiriting"), null;
+      return {
         type,
         promptLang: lang,
         order: 0,
         statement: statement.trim(),
         isCorrect: trueFalseCorrect,
-      });
+      };
     } else {
       if (pairs.some((p) => !p.left.trim() || !p.right.trim())) {
-        return setError("Barcha juftliklarni to'ldiring");
+        return setError("Barcha juftliklarni to'ldiring"), null;
       }
       const matchingPairs: MatchingPair[] = pairs.map((p, i) => ({
         id: `p${i + 1}`,
         left: { text: p.left.trim(), transliteration: p.leftTranslit.trim() || undefined },
         right: { text: p.right.trim() },
       }));
-      onSave({
+      return {
         type,
         promptLang: lang,
         order: 0,
         instruction: instruction.trim() || "Moslashtiring",
         pairs: matchingPairs,
-      });
+      };
+    }
+  }
+
+  async function handleSave() {
+    const data = buildData();
+    if (!data) return;
+    setError(null);
+    try {
+      await onSave(data);
+    } catch (e) {
+      setError(`Saqlashda xatolik: ${(e as Error)?.message ?? "noma'lum"}`);
     }
   }
 
