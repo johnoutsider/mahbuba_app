@@ -95,7 +95,7 @@ export function QuestionEditor({
 
   return (
     <div className="border rounded-lg p-4 space-y-4 bg-gray-50">
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {(Object.keys(TYPE_LABELS) as QuestionType[]).map((t) => (
           <button
             key={t}
@@ -199,8 +199,8 @@ export function QuestionEditor({
           />
           <p className="text-sm font-medium">Juftliklar</p>
           {pairs.map((p, i) => (
-            <div key={i} className="flex gap-2 items-start">
-              <div className="flex-1 space-y-1">
+            <div key={i} className="flex flex-col sm:flex-row gap-2 items-start border-b pb-3 sm:border-0 sm:pb-0">
+              <div className="flex-1 w-full space-y-1">
                 <input
                   value={p.left}
                   onChange={(e) =>
@@ -220,22 +220,24 @@ export function QuestionEditor({
                   className="w-full border rounded-lg px-3 py-2"
                 />
               </div>
-              <input
-                value={p.right}
-                onChange={(e) =>
-                  setPairs(pairs.map((x, idx) => (idx === i ? { ...x, right: e.target.value } : x)))
-                }
-                placeholder={`O'ng ${i + 1}`}
-                className="flex-1 border rounded-lg px-3 py-2 self-start"
-              />
-              {pairs.length > 2 && (
-                <button
-                  onClick={() => setPairs(pairs.filter((_, idx) => idx !== i))}
-                  className="text-red-600"
-                >
-                  ✕
-                </button>
-              )}
+              <div className="flex w-full sm:flex-1 gap-2 items-start">
+                <input
+                  value={p.right}
+                  onChange={(e) =>
+                    setPairs(pairs.map((x, idx) => (idx === i ? { ...x, right: e.target.value } : x)))
+                  }
+                  placeholder={`O'ng ${i + 1}`}
+                  className="flex-1 min-w-0 border rounded-lg px-3 py-2"
+                />
+                {pairs.length > 2 && (
+                  <button
+                    onClick={() => setPairs(pairs.filter((_, idx) => idx !== i))}
+                    className="text-red-600 shrink-0 px-1"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             </div>
           ))}
           <button
@@ -249,8 +251,11 @@ export function QuestionEditor({
 
       {error && <p className="text-red-600 text-sm">{error}</p>}
 
-      <div className="flex gap-2">
-        <button onClick={handleSave} className="bg-green-600 text-white rounded-lg px-4 py-2 font-semibold">
+      <div className="flex flex-col sm:flex-row gap-2">
+        <button
+          onClick={handleSave}
+          className="bg-green-600 text-white rounded-lg px-4 py-2 font-semibold"
+        >
           Saqlash
         </button>
         <button onClick={onCancel} className="text-gray-600 px-4 py-2">

@@ -57,20 +57,20 @@ export default function GroupsPage() {
   return (
     <>
       <h1 className="text-xl font-bold mb-4">Guruhlar</h1>
-      <form onSubmit={handleCreate} className="flex gap-2 mb-6">
+      <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-2 mb-6">
         <input
           value={code}
           onChange={(e) => setCode(e.target.value)}
           placeholder="Guruh kodi (masalan: A1)"
-          className="border rounded-lg px-3 py-2"
+          className="border rounded-lg px-3 py-2 sm:w-40"
         />
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Sarlavha"
-          className="border rounded-lg px-3 py-2 flex-1"
+          className="border rounded-lg px-3 py-2 flex-1 min-w-0"
         />
-        <button className="bg-green-600 text-white rounded-lg px-4 py-2 font-semibold">
+        <button className="bg-green-600 text-white rounded-lg px-4 py-2 font-semibold shrink-0">
           Yaratish
         </button>
       </form>
@@ -81,12 +81,18 @@ export default function GroupsPage() {
       ) : (
         <ul className="space-y-2">
           {groups.map((g) => (
-            <li key={g.code} className="border rounded-lg px-4 py-3 flex items-center justify-between">
-              <span>
+            <li
+              key={g.code}
+              className="border rounded-lg px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+            >
+              <span className="min-w-0">
                 <span className="font-semibold">{g.code}</span>
-                <span className="text-gray-500 text-sm ml-2">{g.title}</span>
+                <span className="text-gray-500 text-sm block sm:inline sm:ml-2">{g.title}</span>
               </span>
-              <button onClick={() => setDeleteTarget(g.code)} className="text-red-600 text-sm">
+              <button
+                onClick={() => setDeleteTarget(g.code)}
+                className="text-red-600 text-sm self-end sm:self-auto shrink-0"
+              >
                 O&apos;chirish
               </button>
             </li>

@@ -98,12 +98,12 @@ export default function CollectionEditorPage() {
               {editing?.id === q.id ? (
                 <QuestionEditor initial={q} onSave={handleUpdate} onCancel={() => setEditing(null)} />
               ) : (
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold">{summary(q)}</p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-semibold truncate">{summary(q)}</p>
                     <p className="text-gray-500 text-sm">{TYPE_LABELS[q.type]}</p>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 shrink-0">
                     <button onClick={() => setEditing(q)} className="text-sm text-blue-600">
                       Tahrirlash
                     </button>

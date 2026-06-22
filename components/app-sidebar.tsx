@@ -36,13 +36,13 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2.5 px-2 py-2">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm">
             <GraduationCap className="size-5" />
           </div>
-          <div className="flex flex-col leading-tight">
+          <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="font-semibold">O&apos;qituvchi paneli</span>
             <span className="text-xs text-sidebar-foreground/60">Navoiy universiteti</span>
           </div>

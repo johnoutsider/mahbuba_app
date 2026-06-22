@@ -57,14 +57,14 @@ export default function CollectionsPage() {
   return (
     <>
       <h1 className="text-xl font-bold mb-4">To&apos;plamlar</h1>
-      <form onSubmit={handleCreate} className="flex gap-2 mb-6">
+      <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-2 mb-6">
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Yangi to'plam sarlavhasi"
-          className="border rounded-lg px-3 py-2 flex-1"
+          className="border rounded-lg px-3 py-2 flex-1 min-w-0"
         />
-        <button className="bg-green-600 text-white rounded-lg px-4 py-2 font-semibold">
+        <button className="bg-green-600 text-white rounded-lg px-4 py-2 font-semibold shrink-0">
           Yaratish
         </button>
       </form>
@@ -75,14 +75,20 @@ export default function CollectionsPage() {
       ) : (
         <ul className="space-y-2">
           {collections.map((c) => (
-            <li key={c.id} className="border rounded-lg px-4 py-3 flex items-center justify-between">
-              <Link href={`/collections/${c.id}`} className="flex-1">
+            <li
+              key={c.id}
+              className="border rounded-lg px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+            >
+              <Link href={`/collections/${c.id}`} className="flex-1 min-w-0">
                 <span className="font-semibold">{c.title}</span>
-                <span className="text-gray-500 text-sm ml-2">
+                <span className="text-gray-500 text-sm block sm:inline sm:ml-2">
                   {c.questionCount} ta savol • O&apos;tish: {Math.round(c.passThreshold * 100)}%
                 </span>
               </Link>
-              <button onClick={() => setDeleteTarget(c)} className="text-red-600 text-sm">
+              <button
+                onClick={() => setDeleteTarget(c)}
+                className="text-red-600 text-sm self-end sm:self-auto shrink-0"
+              >
                 O&apos;chirish
               </button>
             </li>

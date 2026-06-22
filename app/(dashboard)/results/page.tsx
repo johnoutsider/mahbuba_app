@@ -58,7 +58,7 @@ export default function ResultsPage() {
           <select
             value={selectedGroup}
             onChange={(e) => setSelectedGroup(e.target.value)}
-            className="border rounded-lg px-3 py-2 mb-6"
+            className="border rounded-lg px-3 py-2 mb-6 w-full sm:w-auto"
           >
             {groups.map((g) => (
               <option key={g.code} value={g.code}>
@@ -86,9 +86,12 @@ export default function ResultsPage() {
                         <li className="text-gray-500 text-sm">Hali hech narsa yechilmagan</li>
                       ) : (
                         progressByStudent[s.uid].map((p) => (
-                          <li key={p.collectionId} className="text-sm flex justify-between">
-                            <span>{titleById[p.collectionId] ?? p.collectionId}</span>
-                            <span>
+                          <li
+                            key={p.collectionId}
+                            className="text-sm flex flex-col sm:flex-row sm:justify-between gap-0.5"
+                          >
+                            <span className="min-w-0">{titleById[p.collectionId] ?? p.collectionId}</span>
+                            <span className="text-gray-500 sm:text-foreground shrink-0">
                               {p.completed ? "Tugatilgan" : "Tugatilmagan"} • Eng yaxshi:{" "}
                               {Math.round(p.bestScorePct * 100)}%
                             </span>
