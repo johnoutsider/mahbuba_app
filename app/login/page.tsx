@@ -23,8 +23,9 @@ function LoginForm() {
     try {
       await signInWithPopup(auth, new GoogleAuthProvider());
       router.replace("/");
-    } catch {
-      setSignInError("Kirishda xatolik yuz berdi");
+    } catch (e) {
+      const code = (e as { code?: string })?.code ?? "";
+      setSignInError(`Kirishda xatolik yuz berdi${code ? ` (${code})` : ""}`);
     } finally {
       setSubmitting(false);
     }
