@@ -50,8 +50,8 @@ export interface QuestionCollection extends CollectionData {
 
 export interface UserProfile {
   uid: string;
+  phone?: string;
   fullName: string;
-  groupCode: string;
   totalBall: number;
   totalAnswered: number;
   totalCorrect: number;

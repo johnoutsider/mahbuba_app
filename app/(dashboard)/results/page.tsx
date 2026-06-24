@@ -1,38 +1,40 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
-import {
-  fetchCollections,
-  fetchGroups,
-  fetchStudentProgress,
-  fetchStudents,
-} from "@/lib/firestore";
+import { fetchAllStudents, fetchCollections, fetchStudentProgress } from "@/lib/firestore";
 import type { CollectionProgress, QuestionCollection, UserProfile } from "@/lib/types";
 
 export default function ResultsPage() {
   const { user } = useAuth();
-  const [groups, setGroups] = useState<{ code: string; title: string }[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState("");
   const [students, setStudents] = useState<UserProfile[]>([]);
   const [collections, setCollections] = useState<QuestionCollection[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [progressByStudent, setProgressByStudent] = useState<Record<string, CollectionProgress[]>>({});
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [g, c] = await Promise.all([fetchGroups(user.uid), fetchCollections(user.uid)]);
-      setGroups(g);
-      setCollections(c);
-      if (g.length > 0) setSelectedGroup(g[0].code);
+      setLoading(true);
+      setError(null);
+      try {
+        const [studentList, collectionList] = await Promise.all([
+          fetchAllStudents(),
+          fetchCollections(user.uid),
+        ]);
+        setStudents(studentList);
+        setCollections(collectionList);
+      } catch (err) {
+        console.error(err);
+        setError("Natijalarni yuklash uchun ruxsat yetarli emas yoki Firebase rules hali yangilanmagan.");
+      } finally {
+        setLoading(false);
+      }
     })();
   }, [user]);
-
-  useEffect(() => {
-    if (!selectedGroup) return;
-    fetchStudents(selectedGroup).then(setStudents);
-  }, [selectedGroup]);
 
   async function toggleExpand(uid: string) {
     if (expanded === uid) {
@@ -41,8 +43,14 @@ export default function ResultsPage() {
     }
     setExpanded(uid);
     if (!progressByStudent[uid]) {
-      const progress = await fetchStudentProgress(uid);
-      setProgressByStudent((prev) => ({ ...prev, [uid]: progress }));
+      try {
+        const progress = await fetchStudentProgress(uid);
+        setProgressByStudent((prev) => ({ ...prev, [uid]: progress }));
+      } catch (err) {
+        console.error(err);
+        toast.error("Talaba progressini o'qish uchun ruxsat yetarli emas");
+        setExpanded(null);
+      }
     }
   }
 
@@ -51,60 +59,55 @@ export default function ResultsPage() {
   return (
     <>
       <h1 className="text-xl font-bold mb-4">Natijalar</h1>
-      {groups.length === 0 ? (
-        <p className="text-gray-500">Avval guruh yarating</p>
+      {loading ? (
+        <p>Yuklanmoqda...</p>
+      ) : error ? (
+        <p className="text-red-600">{error}</p>
+      ) : students.length === 0 ? (
+        <p className="text-gray-500">Hali talaba yo&apos;q</p>
       ) : (
-        <>
-          <select
-            value={selectedGroup}
-            onChange={(e) => setSelectedGroup(e.target.value)}
-            className="border rounded-lg px-3 py-2 mb-6 w-full sm:w-auto"
-          >
-            {groups.map((g) => (
-              <option key={g.code} value={g.code}>
-                {g.code}
-              </option>
-            ))}
-          </select>
-          {students.length === 0 ? (
-            <p className="text-gray-500">Bu guruhda talaba yo&apos;q</p>
-          ) : (
-            <ul className="space-y-2">
-              {students.map((s) => (
-                <li key={s.uid} className="border rounded-lg px-4 py-3">
-                  <button onClick={() => toggleExpand(s.uid)} className="w-full text-left">
-                    <p className="font-semibold">{s.fullName}</p>
-                    <p className="text-gray-500 text-sm">
-                      Ball: {s.totalBall} • To&apos;g&apos;ri javob:{" "}
-                      {s.totalAnswered === 0 ? 0 : Math.round((s.totalCorrect / s.totalAnswered) * 100)}%
-                      ({s.totalCorrect}/{s.totalAnswered})
-                    </p>
-                  </button>
-                  {expanded === s.uid && (
-                    <ul className="mt-3 space-y-1 border-t pt-3">
-                      {(progressByStudent[s.uid] ?? []).length === 0 ? (
-                        <li className="text-gray-500 text-sm">Hali hech narsa yechilmagan</li>
-                      ) : (
-                        progressByStudent[s.uid].map((p) => (
-                          <li
-                            key={p.collectionId}
-                            className="text-sm flex flex-col sm:flex-row sm:justify-between gap-0.5"
-                          >
-                            <span className="min-w-0">{titleById[p.collectionId] ?? p.collectionId}</span>
-                            <span className="text-gray-500 sm:text-foreground shrink-0">
-                              {p.completed ? "Tugatilgan" : "Tugatilmagan"} • Eng yaxshi:{" "}
-                              {Math.round(p.bestScorePct * 100)}%
-                            </span>
-                          </li>
-                        ))
-                      )}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
+        <ul className="space-y-2">
+          {students.map((student) => {
+            const accuracy =
+              student.totalAnswered === 0
+                ? 0
+                : Math.round((student.totalCorrect / student.totalAnswered) * 100);
+
+            return (
+              <li key={student.uid} className="border rounded-lg px-4 py-3">
+                <button onClick={() => toggleExpand(student.uid)} className="w-full text-left">
+                  <p className="font-semibold">{student.fullName}</p>
+                  <p className="text-gray-500 text-sm">
+                    Ball: {student.totalBall ?? 0} | To&apos;g&apos;ri javob: {accuracy}% (
+                    {student.totalCorrect ?? 0}/{student.totalAnswered ?? 0})
+                  </p>
+                </button>
+                {expanded === student.uid && (
+                  <ul className="mt-3 space-y-1 border-t pt-3">
+                    {(progressByStudent[student.uid] ?? []).length === 0 ? (
+                      <li className="text-gray-500 text-sm">Hali hech narsa yechilmagan</li>
+                    ) : (
+                      progressByStudent[student.uid].map((progress) => (
+                        <li
+                          key={progress.collectionId}
+                          className="text-sm flex flex-col gap-0.5 sm:flex-row sm:justify-between"
+                        >
+                          <span className="min-w-0">
+                            {titleById[progress.collectionId] ?? progress.collectionId}
+                          </span>
+                          <span className="text-gray-500 sm:text-foreground shrink-0">
+                            {progress.completed ? "Tugatilgan" : "Tugatilmagan"} | Eng yaxshi:{" "}
+                            {Math.round(progress.bestScorePct * 100)}%
+                          </span>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       )}
     </>
   );

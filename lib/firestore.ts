@@ -5,15 +5,12 @@ import {
   getDocs,
   addDoc,
   updateDoc,
-  deleteDoc,
-  setDoc,
   query,
   where,
   orderBy,
   limit,
   writeBatch,
   increment,
-  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type {
@@ -104,28 +101,15 @@ export async function deleteQuestion(collectionId: string, questionId: string) {
   await batch.commit();
 }
 
-export async function createGroup(ownerId: string, code: string, title: string) {
-  await setDoc(doc(db, "groups", code), { ownerId, title, createdAt: serverTimestamp() });
-}
-
-export async function fetchGroups(ownerId: string) {
-  const snap = await getDocs(query(collection(db, "groups"), where("ownerId", "==", ownerId)));
-  return snap.docs.map((d) => ({ code: d.id, title: (d.data().title as string) ?? "" }));
-}
-
-export async function deleteGroup(code: string) {
-  await deleteDoc(doc(db, "groups", code));
-}
-
-export async function fetchStudents(groupCode: string): Promise<UserProfile[]> {
-  const snap = await getDocs(
-    query(
-      collection(db, "users"),
-      where("groupCode", "==", groupCode),
-      orderBy("totalBall", "desc")
-    )
-  );
-  return snap.docs.map((d) => ({ uid: d.id, ...(d.data() as Omit<UserProfile, "uid">) }));
+export async function fetchAllStudents(): Promise<UserProfile[]> {
+  const snap = await getDocs(query(collection(db, "users"), where("role", "==", "student")));
+  return snap.docs
+    .map((d) => ({ uid: d.id, ...(d.data() as Omit<UserProfile, "uid">) }))
+    .sort((a, b) => {
+      const byBall = (b.totalBall ?? 0) - (a.totalBall ?? 0);
+      if (byBall !== 0) return byBall;
+      return (a.fullName || a.uid).localeCompare(b.fullName || b.uid);
+    });
 }
 
 export async function fetchStudentProgress(uid: string): Promise<CollectionProgress[]> {

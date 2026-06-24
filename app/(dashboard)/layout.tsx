@@ -10,7 +10,6 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 const TITLES: Record<string, string> = {
   "/": "Boshqaruv paneli",
   "/collections": "To'plamlar",
-  "/groups": "Guruhlar",
   "/results": "Natijalar",
 };
 

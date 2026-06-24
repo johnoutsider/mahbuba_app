@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GraduationCap, LayoutDashboard, Library, LogOut, Users } from "lucide-react";
+import { GraduationCap, LayoutDashboard, Library, LogOut } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import {
   Sidebar,
@@ -27,7 +27,6 @@ import {
 const NAV = [
   { href: "/", label: "Boshqaruv paneli", icon: LayoutDashboard, color: "text-sky-400" },
   { href: "/collections", label: "To'plamlar", icon: Library, color: "text-emerald-400" },
-  { href: "/groups", label: "Guruhlar", icon: Users, color: "text-amber-400" },
   { href: "/results", label: "Natijalar", icon: GraduationCap, color: "text-rose-400" },
 ];
 
